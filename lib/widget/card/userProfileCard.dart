@@ -3,18 +3,20 @@ import 'package:si_admin/const/default.dart';
 import 'package:si_admin/widget/dialogue/deleteConfirmationDialogue.dart';
 import 'package:si_admin/widget/dialogue/editScheduleDialogue.dart';
 
-class Schedulecard extends StatelessWidget {
-  const Schedulecard(
+class Userprofilecard extends StatelessWidget {
+  const Userprofilecard(
       {super.key,
-      required this.semester,
-      required this.kelas,
-      required this.jam,
-      required this.pelakasaan});
+      required this.nama,
+      required this.npm,
+      required this.email,
+      required this.password,
+      required this.kelas});
 
-  final String semester;
+  final String nama;
+  final String npm;
+  final String email;
+  final String password;
   final String kelas;
-  final String jam;
-  final String pelakasaan;
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +31,9 @@ class Schedulecard extends StatelessWidget {
               context: context,
               builder: (BuildContext context) {
                 //delete confirmation
-                return DeleteConfirmationDialogue(delete: () {}, );
+                return DeleteConfirmationDialogue(
+                  delete: () {},
+                );
               });
         },
         onTap: () {
@@ -49,22 +53,22 @@ class Schedulecard extends StatelessWidget {
             children: [
               //smester
               Expanded(
-                  child: Center(child: Text(semester, style: coursesDescStyle))),
+                  child: Center(child: Text(nama, style: coursesDescStyle))),
               //matprak
               Expanded(
                 child: Center(
                   child: Text(
                     textAlign: TextAlign.center,
-                    kelas,
+                    npm,
                     style: coursesDescStyle,
                   ),
                 ),
               ),
-              //jam
+              //email
               Expanded(
                 child: Center(
                   child: Text(
-                    jam,
+                    email,
                     style: coursesDescStyle,
                   ),
                 ),
@@ -73,7 +77,15 @@ class Schedulecard extends StatelessWidget {
               Expanded(
                 child: Center(
                   child: Text(
-                    pelakasaan,
+                    password,
+                    style: coursesDescStyle,
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Center(
+                  child: Text(
+                    kelas,
                     style: coursesDescStyle,
                   ),
                 ),

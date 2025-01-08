@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:si_admin/const/default.dart';
 import 'package:si_admin/widget/card/cardInformationHeader.dart';
@@ -5,11 +6,23 @@ import 'package:si_admin/widget/dialogue/addCoursesDialogue.dart';
 import 'package:si_admin/widget/header/customHeader.dart';
 import 'package:si_admin/widget/card/coursesCard.dart';
 
-class CoursePage extends StatelessWidget {
+class CoursePage extends StatefulWidget {
   const CoursePage({super.key});
 
   @override
+  State<CoursePage> createState() => _CoursePageState();
+}
+
+class _CoursePageState extends State<CoursePage> {
+  String queryPencarian = '';
+
+  @override
   Widget build(BuildContext context) {
+    final Stream<QuerySnapshot> kelas =
+        FirebaseFirestore.instance.collection('kelas').snapshots();
+    final Stream<QuerySnapshot> lokasi =
+        FirebaseFirestore.instance.collection('lokasi').snapshots();
+
     return Scaffold(
       backgroundColor: bgColor,
       body: Row(
@@ -18,6 +31,11 @@ class CoursePage extends StatelessWidget {
               child: Column(
             children: [
               Customheader(
+                pencarian: (query) {
+                  setState(() {
+                    queryPencarian = query;
+                  });
+                },
                 title: 'Courses',
               ),
               SizedBox(
@@ -36,27 +54,87 @@ class CoursePage extends StatelessWidget {
                     SizedBox(
                       width: MediaQuery.sizeOf(context).height * 0.04,
                     ),
-                    Cardinformationheader(
-                      cardIcon: Icons.book_outlined,
-                      informasi: '4',
-                      judulCard: 'Courses',
-                    ),
+                    StreamBuilder<QuerySnapshot>(
+                        stream: kelas,
+                        builder: (context, snapshot) {
+                          print(
+                              'Connection State: ${snapshot.connectionState}');
+                          print('Has Error: ${snapshot.hasError}');
+                          print('Has Data: ${snapshot.hasData}');
+
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return Cardinformationheader(
+                              cardIcon: Icons.book_outlined,
+                              informasi: '0',
+                              judulCard: 'Courses',
+                            );
+                          }
+                          if (snapshot.hasError) {
+                            return Cardinformationheader(
+                              cardIcon: Icons.book_outlined,
+                              informasi: 'Error',
+                              judulCard: 'Courses',
+                            );
+                          }
+                          final kelasCount = snapshot.data!.docs.length;
+                          return Cardinformationheader(
+                            cardIcon: Icons.book_outlined,
+                            informasi: kelasCount.toString(),
+                            judulCard: 'Courses',
+                          );
+                        }),
                     SizedBox(
                       width: MediaQuery.sizeOf(context).height * 0.04,
                     ),
                     Cardinformationheader(
                       cardIcon: Icons.notifications,
                       informasi: '10',
-                      judulCard: 'Notifications',
+                      judulCard: 'Schedules',
                     ),
                     SizedBox(
                       width: MediaQuery.sizeOf(context).height * 0.04,
                     ),
-                    Cardinformationheader(
-                      cardIcon: Icons.location_on_outlined,
-                      informasi: '4',
-                      judulCard: 'Location',
-                    ),
+                    StreamBuilder<QuerySnapshot>(
+                        stream: lokasi,
+                        builder: (context, snapshot) {
+                          print(
+                              'Connection State: ${snapshot.connectionState}');
+                          print('Has Error: ${snapshot.hasError}');
+                          print('Has Data: ${snapshot.hasData}');
+
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return Cardinformationheader(
+                              cardIcon: Icons.book_outlined,
+                              informasi: '0',
+                              judulCard: 'Locations',
+                            );
+                          }
+                          if (snapshot.hasError) {
+                            return Cardinformationheader(
+                              cardIcon: Icons.book_outlined,
+                              informasi: 'Error',
+                              judulCard: 'Locations',
+                            );
+                          }
+                          final lokasiDocs = snapshot.data!.docs;
+                          final lokasiCoont = snapshot.data!.docs.length;
+
+                          List<String> lokasiDetails = lokasiDocs.map((doc) {
+                            return 'Tempat: ${doc['tempat']}, Lat: ${doc['latitude']}, Long: ${doc['longitude']}, Rad: ${doc['radius']}';
+                          }).toList();
+
+                          for (var detail in lokasiDetails) {
+                            print(detail);
+                          }
+
+                          return Cardinformationheader(
+                            cardIcon: Icons.book_outlined,
+                            informasi: lokasiCoont.toString(),
+                            judulCard: 'Locations',
+                          );
+                        }),
                   ],
                 ),
               ),
@@ -117,26 +195,46 @@ class CoursePage extends StatelessWidget {
                   child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    Coursescard(
-                        pertemuan: '4',
-                        kelas: 'Statistika Dasar C',
-                        jam: '14.30 - 16.00',
-                        pelakasaan: 'Lab MM'),
-                    Coursescard(
-                        pertemuan: '4',
-                        kelas: 'Statistika Dasar C',
-                        jam: '14.30 - 16.00',
-                        pelakasaan: 'Lab SC'),
-                    Coursescard(
-                        pertemuan: '4',
-                        kelas: 'Mobile Programming Ekstensi',
-                        jam: '21.30 - 23.00',
-                        pelakasaan: 'online'),
-                    Coursescard(
-                        pertemuan: '4',
-                        kelas: 'Pemrograman Beroreantasi Objek C',
-                        jam: '14.30 - 16.00',
-                        pelakasaan: 'Lab SC'),
+                    StreamBuilder<QuerySnapshot>(
+                        stream: kelas,
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          }
+                          if (snapshot.hasError) {
+                            return Center(
+                              child: Text('Error : ${snapshot.error}'),
+                            );
+                          }
+
+                          final kelasDocs = snapshot.data!.docs;
+
+                          final filteredKelas = kelasDocs.where((kelasDoc) {
+                            final namaKelas =
+                                kelasDoc['kelas'].toString().toLowerCase();
+                            return namaKelas
+                                .contains(queryPencarian.toLowerCase());
+                          }).toList();
+
+                          return ListView.builder(
+                            shrinkWrap: true,
+                            physics: NeverScrollableScrollPhysics(),
+                            itemCount: filteredKelas.length,
+                            itemBuilder: (context, index) {
+                              final kelasDoc = filteredKelas[index];
+                              return Coursescard(
+                                pertemuan: kelasDoc['pertemuan'],
+                                kelas: kelasDoc['kelas'],
+                                jam: kelasDoc['jam'],
+                                pelakasaan: kelasDoc['tempat'],
+                                kelasId: kelasDoc.id,
+                              );
+                            },
+                          );
+                        })
                   ],
                 ),
               ))

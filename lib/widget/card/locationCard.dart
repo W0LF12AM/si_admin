@@ -3,18 +3,18 @@ import 'package:si_admin/const/default.dart';
 import 'package:si_admin/widget/dialogue/deleteConfirmationDialogue.dart';
 import 'package:si_admin/widget/dialogue/editScheduleDialogue.dart';
 
-class Schedulecard extends StatelessWidget {
-  const Schedulecard(
+class Locationcard extends StatelessWidget {
+  const Locationcard(
       {super.key,
-      required this.semester,
-      required this.kelas,
-      required this.jam,
-      required this.pelakasaan});
+      required this.tempat,
+      required this.longitude,
+      required this.latitude,
+      required this.radius});
 
-  final String semester;
-  final String kelas;
-  final String jam;
-  final String pelakasaan;
+  final String tempat;
+  final String longitude;
+  final String latitude;
+  final String radius;
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +29,9 @@ class Schedulecard extends StatelessWidget {
               context: context,
               builder: (BuildContext context) {
                 //delete confirmation
-                return DeleteConfirmationDialogue(delete: () {}, );
+                return DeleteConfirmationDialogue(
+                  delete: () {},
+                );
               });
         },
         onTap: () {
@@ -49,22 +51,22 @@ class Schedulecard extends StatelessWidget {
             children: [
               //smester
               Expanded(
-                  child: Center(child: Text(semester, style: coursesDescStyle))),
+                  child: Center(child: Text(tempat, style: coursesDescStyle))),
               //matprak
               Expanded(
                 child: Center(
                   child: Text(
                     textAlign: TextAlign.center,
-                    kelas,
+                    longitude,
                     style: coursesDescStyle,
                   ),
                 ),
               ),
-              //jam
+              //latitude
               Expanded(
                 child: Center(
                   child: Text(
-                    jam,
+                    latitude,
                     style: coursesDescStyle,
                   ),
                 ),
@@ -73,7 +75,7 @@ class Schedulecard extends StatelessWidget {
               Expanded(
                 child: Center(
                   child: Text(
-                    pelakasaan,
+                    radius,
                     style: coursesDescStyle,
                   ),
                 ),

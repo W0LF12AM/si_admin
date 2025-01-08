@@ -3,7 +3,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:si_admin/const/default.dart';
 
 class DeleteConfirmationDialogue extends StatelessWidget {
-  const DeleteConfirmationDialogue({super.key});
+  DeleteConfirmationDialogue({super.key, required this.delete});
+
+  final VoidCallback delete;
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +63,8 @@ class DeleteConfirmationDialogue extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           GestureDetector(
-                            onTap: () {
+                            onTap: () async {
+                              delete();
                               Navigator.pop(context);
                             },
                             child: Container(

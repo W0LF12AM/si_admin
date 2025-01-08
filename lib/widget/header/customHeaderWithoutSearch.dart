@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:si_admin/const/default.dart';
 
-class Customheader extends StatelessWidget {
-  const Customheader({super.key, required this.title, required this.pencarian});
+class Customheaderwithoutsearch extends StatelessWidget {
+  const Customheaderwithoutsearch({super.key, required this.title});
 
   final String title;
-  final ValueChanged<String> pencarian;
+
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +34,6 @@ class Customheader extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: TextField(
-                  onChanged: pencarian,
                   style: GoogleFonts.roboto(
                       fontSize: 20, fontWeight: FontWeight.bold),
                   decoration: InputDecoration(

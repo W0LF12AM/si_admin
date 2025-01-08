@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:si_admin/const/default.dart';
 import 'package:si_admin/widget/dialogue/deleteConfirmationDialogue.dart';
@@ -9,15 +10,40 @@ class Coursescard extends StatelessWidget {
       required this.pertemuan,
       required this.kelas,
       required this.jam,
-      required this.pelakasaan});
+      required this.pelakasaan,
+      required this.kelasId});
 
   final String pertemuan;
   final String kelas;
   final String jam;
   final String pelakasaan;
+  final String kelasId;
 
   @override
   Widget build(BuildContext context) {
+    void deleteKelas(String kelasId) {
+      print('Menghapus kelas dengan ID: $kelasId');
+      FirebaseFirestore.instance
+          .collection('kelas')
+          .doc(kelasId)
+          .delete()
+          .then((_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Kelas berhasil dihapus')),
+        );
+      }).catchError((error) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Gagal menghapus kelas: $error')),
+        );
+      });
+    }
+
+    void testDeleteKelas() {
+      String testKelasId =
+          'kelas $kelasId dihapus'; // Ganti dengan ID yang valid
+      deleteKelas(testKelasId);
+    }
+
     return Padding(
       padding: EdgeInsets.only(
           left: MediaQuery.sizeOf(context).width * 0.04,
@@ -29,7 +55,12 @@ class Coursescard extends StatelessWidget {
               context: context,
               builder: (BuildContext context) {
                 //delete confirmation
-                return DeleteConfirmationDialogue();
+                print('kelasi Id yang dipilih : $kelasId');
+                return DeleteConfirmationDialogue(
+                  delete: () {
+                    deleteKelas(kelasId);
+                  },
+                );
               });
         },
         onTap: () {
@@ -37,7 +68,9 @@ class Coursescard extends StatelessWidget {
               context: context,
               builder: (BuildContext context) {
                 return Downloaddatadialogue(
-                  download: () {},
+                  download: () {
+                    
+                  },
                 );
               });
         },

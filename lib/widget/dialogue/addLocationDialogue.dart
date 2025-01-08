@@ -4,89 +4,31 @@ import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:si_admin/const/default.dart';
 
-class Addcoursesdialogue extends StatefulWidget {
-  const Addcoursesdialogue({super.key});
+class Addlocationdialogue extends StatefulWidget {
+  const Addlocationdialogue({super.key});
 
   @override
-  State<Addcoursesdialogue> createState() => _AddcoursesdialogueState();
+  State<Addlocationdialogue> createState() => _AddlocationdialogueState();
 }
 
-class _AddcoursesdialogueState extends State<Addcoursesdialogue> {
-  final TextEditingController pertemuanController = TextEditingController();
-  final TextEditingController kelasController = TextEditingController();
-  final TextEditingController jamController = TextEditingController();
-  final TextEditingController tempatController = TextEditingController();
-
-  String? _selectedLocationId;
-  List<Map<String, dynamic>> _locations = [];
-
-  @override
-  void initState() {
-    super.initState();
-    _fetchLocations();
-  }
-
-  Future<void> _fetchLocations() async {
-    QuerySnapshot snapshot =
-        await FirebaseFirestore.instance.collection('lokasi').get();
-    setState(() {
-      _locations = snapshot.docs.map((doc) {
-        return {
-          'id': doc.id,
-          'tempat': doc['tempat'],
-          'longitude': doc['longitude'],
-          'latitude': doc['latitude'],
-          'radius': doc['radius'],
-        };
-      }).toList();
-    });
-  }
-
-  Future<void> _addClass() async {
-    String className = kelasController.text;
-
-    if (_selectedLocationId != null) {
-      try {
-        DocumentSnapshot lokasiDoc = await FirebaseFirestore.instance
-            .collection('lokasi')
-            .doc(_selectedLocationId)
-            .get();
-
-        if (lokasiDoc.exists) {
-          double longitude = lokasiDoc['longitude'];
-          double latitude = lokasiDoc['latitude'];
-          double radius = lokasiDoc['radius'];
-          String tempat = lokasiDoc['tempat'];
-
-          await FirebaseFirestore.instance.collection('kelas').add({
-            'pertemuan': pertemuanController.text,
-            'kelas': kelasController.text,
-            'jam': jamController.text,
-            'tempat': tempat,
-            'longitude': longitude,
-            'latitude': latitude,
-            'radius': radius,
-          });
-
-          print('Nama Tempat: $tempat');
-        } else {
-          print('Dokumen lokasi tidak ditemukan');
-        }
-      } catch (e) {
-        print('Error: $e');
-      }
-      pertemuanController.clear();
-      kelasController.clear();
-      jamController.clear();
-      _selectedLocationId = null;
-    } else {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Tolong pilih lokasi')));
-    }
-  }
-
+class _AddlocationdialogueState extends State<Addlocationdialogue> {
   @override
   Widget build(BuildContext context) {
+    final TextEditingController tempatController = TextEditingController();
+    final TextEditingController longitudeController = TextEditingController();
+    final TextEditingController latitudeController = TextEditingController();
+    final TextEditingController radiusController = TextEditingController();
+
+    Future<void> _addLocation() async {
+      await FirebaseFirestore.instance.collection('lokasi').add({
+        'tempat': tempatController.text,
+        'longitude': double.tryParse(longitudeController.text) ?? 0.0,
+        'latitude': double.tryParse(latitudeController.text) ?? 0.0,
+        'radius': double.tryParse(radiusController.text) ?? 0.0,
+      });
+      Navigator.pop(context);
+    }
+
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       backgroundColor: secondaryColor,
@@ -100,7 +42,7 @@ class _AddcoursesdialogueState extends State<Addcoursesdialogue> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Add Course',
+                'Add Location',
                 style: GoogleFonts.roboto(
                     color: mainColor,
                     fontSize: MediaQuery.sizeOf(context).width * 0.017,
@@ -124,13 +66,13 @@ class _AddcoursesdialogueState extends State<Addcoursesdialogue> {
                 ),
                 height: MediaQuery.sizeOf(context).height * 0.06,
                 child: TextField(
-                  controller: pertemuanController,
+                  controller: tempatController,
                   textAlign: TextAlign.start,
                   style: GoogleFonts.roboto(
                       fontWeight: FontWeight.bold, fontSize: 20),
                   decoration: InputDecoration(
                     border: InputBorder.none,
-                    hintText: 'Pertemuan',
+                    hintText: 'Nama Tempat',
                     contentPadding: EdgeInsets.only(left: 10),
                   ),
                   onChanged: (value) {},
@@ -146,13 +88,13 @@ class _AddcoursesdialogueState extends State<Addcoursesdialogue> {
                 ),
                 height: MediaQuery.sizeOf(context).height * 0.06,
                 child: TextField(
-                  controller: kelasController,
+                  controller: longitudeController,
                   textAlign: TextAlign.start,
                   style: GoogleFonts.roboto(
                       fontWeight: FontWeight.bold, fontSize: 20),
                   decoration: InputDecoration(
                     border: InputBorder.none,
-                    hintText: 'Kelas',
+                    hintText: 'Longitude',
                     contentPadding: EdgeInsets.only(left: 10),
                   ),
                   onChanged: (value) {},
@@ -168,13 +110,13 @@ class _AddcoursesdialogueState extends State<Addcoursesdialogue> {
                 ),
                 height: MediaQuery.sizeOf(context).height * 0.06,
                 child: TextField(
-                  controller: jamController,
+                  controller: latitudeController,
                   textAlign: TextAlign.start,
                   style: GoogleFonts.roboto(
                       fontWeight: FontWeight.bold, fontSize: 20),
                   decoration: InputDecoration(
                     border: InputBorder.none,
-                    hintText: 'Jam',
+                    hintText: 'Latitude',
                     contentPadding: EdgeInsets.only(left: 10),
                   ),
                   onChanged: (value) {},
@@ -189,35 +131,17 @@ class _AddcoursesdialogueState extends State<Addcoursesdialogue> {
                   color: formColor,
                 ),
                 height: MediaQuery.sizeOf(context).height * 0.06,
-                width: double.maxFinite,
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 10),
-                  child: DropdownButton<String>(
-                    underline: SizedBox(),
-                    dropdownColor: secondaryColor,
-                    hint: Text(
-                      'Pilih Lokasi',
-                      style: GoogleFonts.roboto(
-                          fontWeight: FontWeight.bold, fontSize: 20),
-                    ),
-                    value: _selectedLocationId,
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        _selectedLocationId =
-                            newValue; // Simpan ID lokasi yang dipilih
-                      });
-                    },
-                    items: _locations.map((location) {
-                      return DropdownMenuItem<String>(
-                        value: location['id'],
-                        child: Text(
-                          location['tempat'],
-                          style: GoogleFonts.roboto(
-                              fontWeight: FontWeight.bold, fontSize: 20),
-                        ),
-                      );
-                    }).toList(),
+                child: TextField(
+                  controller: radiusController,
+                  textAlign: TextAlign.start,
+                  style: GoogleFonts.roboto(
+                      fontWeight: FontWeight.bold, fontSize: 20),
+                  decoration: InputDecoration(
+                    border: InputBorder.none,
+                    hintText: 'Radius',
+                    contentPadding: EdgeInsets.only(left: 10),
                   ),
+                  onChanged: (value) {},
                 ),
               ),
               SizedBox(
@@ -250,10 +174,7 @@ class _AddcoursesdialogueState extends State<Addcoursesdialogue> {
                     width: MediaQuery.sizeOf(context).width * 0.005,
                   ),
                   GestureDetector(
-                    onTap: () async {
-                      _addClass();
-                      Navigator.pop(context);
-                    },
+                    onTap: _addLocation,
                     child: Container(
                       width: MediaQuery.sizeOf(context).width * 0.048,
                       height: MediaQuery.sizeOf(context).height * 0.048,

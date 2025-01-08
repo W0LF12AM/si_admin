@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:si_admin/const/default.dart';
 import 'package:si_admin/widget/card/scheduleCard.dart';
 import 'package:si_admin/widget/dialogue/addScheduleDialogue.dart';
-import 'package:si_admin/widget/header/customHeader.dart';
+
+import 'package:si_admin/widget/header/customHeaderWithoutSearch.dart';
 
 class SchedulePage extends StatelessWidget {
   const SchedulePage({super.key});
@@ -16,7 +17,7 @@ class SchedulePage extends StatelessWidget {
           Expanded(
               child: Column(
             children: [
-              Customheader(title: 'Schedule'),
+              Customheaderwithoutsearch(title: 'Schedule'),
               SizedBox(
                 height: 30,
               ),
