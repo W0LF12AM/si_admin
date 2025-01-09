@@ -1,13 +1,49 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:si_admin/const/default.dart';
 import 'package:si_admin/widget/card/userProfileCard.dart';
+import 'package:si_admin/widget/header/customHeader.dart';
 import 'package:si_admin/widget/header/customHeaderWithoutSearch.dart';
 
-class UserprofilePage extends StatelessWidget {
+class UserprofilePage extends StatefulWidget {
   const UserprofilePage({super.key});
 
   @override
+  State<UserprofilePage> createState() => _UserprofilePageState();
+}
+
+class _UserprofilePageState extends State<UserprofilePage> {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  List<Map<String, dynamic>> users = [];
+  String queryPencarian = '';
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    loadUsers();
+  }
+
+  Future<void> loadUsers() async {
+    QuerySnapshot querySnapshot = await _firestore.collection('users').get();
+    setState(() {
+      users = querySnapshot.docs
+          .map((doc) => doc.data() as Map<String, dynamic>)
+          .toList();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    List<Map<String, dynamic>> filteredUsers = users.where((user) {
+      return user['name']
+              .toLowerCase()
+              .contains(queryPencarian.toLowerCase()) ||
+          user['npm'].toLowerCase().contains(queryPencarian.toLowerCase()) ||
+          user['class'].toLowerCase().contains(queryPencarian.toLowerCase());
+    }).toList();
+
     return Scaffold(
       backgroundColor: bgColor,
       body: Row(
@@ -15,7 +51,14 @@ class UserprofilePage extends StatelessWidget {
           Expanded(
               child: Column(
             children: [
-              Customheaderwithoutsearch(title: 'Users Profile'),
+              Customheader(
+                title: 'Users Profile',
+                pencarian: (query) {
+                  setState(() {
+                    queryPencarian = query;
+                  });
+                },
+              ),
               SizedBox(
                 height: 30,
               ),
@@ -43,14 +86,6 @@ class UserprofilePage extends StatelessWidget {
                       )),
                       Expanded(
                           child: Center(
-                        child: Text('Email', style: coursesStyle),
-                      )),
-                      Expanded(
-                          child: Center(
-                        child: Text('Password', style: coursesStyle),
-                      )),
-                      Expanded(
-                          child: Center(
                         child: Text('Kelas', style: coursesStyle),
                       ))
                     ],
@@ -63,27 +98,12 @@ class UserprofilePage extends StatelessWidget {
               Expanded(
                   child: SingleChildScrollView(
                 child: Column(
-                  children: [
-                    Userprofilecard(
-                        nama: 'Bayu',
-                        npm: '065120067',
-                        email: 'bayu@unpak.ac.id',
-                        password: 'bayu123',
-                        kelas: 'C'),
-                    Userprofilecard(
-                        nama: 'Bryan',
-                        npm: '065120162',
-                        email: 'bre@unpak.ac.id',
-                        password: 'bre123',
-                        kelas: 'F'),
-                    Userprofilecard(
-                        nama: 'Andhika',
-                        npm: '065120025',
-                        email: 'andhika@unpak.ac.id',
-                        password: 'andhika123',
-                        kelas: 'A'),
-                  ],
-                ),
+                    children: filteredUsers.map((user) {
+                  return Userprofilecard(
+                      nama: user['name'] ?? 'No Name',
+                      npm: user['npm'] ?? 'No NPM',
+                      kelas: user['class'] ?? 'No Classes');
+                }).toList()),
               ))
             ],
           ))

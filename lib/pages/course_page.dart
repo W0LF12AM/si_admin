@@ -102,14 +102,14 @@ class _CoursePageState extends State<CoursePage> {
                             return Cardinformationheader(
                               cardIcon: Icons.calendar_month,
                               informasi: '0',
-                              judulCard: 'Locations',
+                              judulCard: 'Schedules',
                             );
                           }
                           if (snapshot.hasError) {
                             return Cardinformationheader(
                               cardIcon: Icons.calendar_month,
                               informasi: 'Error',
-                              judulCard: 'Locations',
+                              judulCard: 'Schedules',
                             );
                           }
                           final jadwalCount = snapshot.data!.docs.length;
@@ -117,7 +117,7 @@ class _CoursePageState extends State<CoursePage> {
                           return Cardinformationheader(
                             cardIcon: Icons.calendar_month,
                             informasi: jadwalCount.toString(),
-                            judulCard: 'Locations',
+                            judulCard: 'Schedules',
                           );
                         }),
                     SizedBox(

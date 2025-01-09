@@ -7,14 +7,13 @@ class Userprofilecard extends StatelessWidget {
       {super.key,
       required this.nama,
       required this.npm,
-      required this.email,
-      required this.password,
+
       required this.kelas});
 
   final String nama;
   final String npm;
-  final String email;
-  final String password;
+
+
   final String kelas;
 
   @override
@@ -35,13 +34,7 @@ class Userprofilecard extends StatelessWidget {
                 );
               });
         },
-        onTap: () {
-          // showDialog(
-          //     context: context,
-          //     builder: (BuildContext context) {
-              
-          //     });
-        },
+        onTap: () {},
         child: Container(
           width: double.maxFinite,
           height: MediaQuery.sizeOf(context).height * 0.07,
@@ -63,24 +56,9 @@ class Userprofilecard extends StatelessWidget {
                   ),
                 ),
               ),
-              //email
-              Expanded(
-                child: Center(
-                  child: Text(
-                    email,
-                    style: coursesDescStyle,
-                  ),
-                ),
-              ),
+
               //lab
-              Expanded(
-                child: Center(
-                  child: Text(
-                    password,
-                    style: coursesDescStyle,
-                  ),
-                ),
-              ),
+              
               Expanded(
                 child: Center(
                   child: Text(
