@@ -7,7 +7,6 @@ class Customheaderwithoutsearch extends StatelessWidget {
 
   final String title;
 
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -26,23 +25,6 @@ class Customheaderwithoutsearch extends StatelessWidget {
               style:
                   GoogleFonts.roboto(fontSize: 30, fontWeight: FontWeight.bold),
             ),
-            Container(
-              width: MediaQuery.sizeOf(context).width * 0.15,
-              height: MediaQuery.sizeOf(context).height * 0.05,
-              decoration: BoxDecoration(
-                  color: bgColor, borderRadius: BorderRadius.circular(5)),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: TextField(
-                  style: GoogleFonts.roboto(
-                      fontSize: 20, fontWeight: FontWeight.bold),
-                  decoration: InputDecoration(
-                      border: InputBorder.none,
-                      prefixIcon: Icon(Icons.search),
-                      hintText: 'Search'),
-                ),
-              ),
-            )
           ],
         ),
       ),

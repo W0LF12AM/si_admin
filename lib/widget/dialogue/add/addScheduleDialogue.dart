@@ -1,10 +1,68 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:si_admin/const/default.dart';
 
-class Addscheduledialogue extends StatelessWidget {
+class Addscheduledialogue extends StatefulWidget {
   const Addscheduledialogue({super.key});
+
+  @override
+  State<Addscheduledialogue> createState() => _AddscheduledialogueState();
+}
+
+class _AddscheduledialogueState extends State<Addscheduledialogue> {
+  final TextEditingController semesterController = TextEditingController();
+  final TextEditingController kelasController = TextEditingController();
+  final TextEditingController jamController = TextEditingController();
+  final TextEditingController tempatController = TextEditingController();
+
+  String? _selectedLokasiId;
+  List<Map<String, dynamic>> _lokasis = [];
+
+  Future<void> _fetchLokasi() async {
+    QuerySnapshot snapshot =
+        await FirebaseFirestore.instance.collection('lokasi').get();
+
+    setState(() {
+      _lokasis = snapshot.docs.map((doc) {
+        return {
+          'id': doc.id,
+          'tempat': doc['tempat'],
+          'longitude': doc['longitude'],
+          'latitude': doc['latitude'],
+          'radius': doc['radius'],
+        };
+      }).toList();
+    });
+  }
+
+  void addJadwal() async {
+    if (_selectedLokasiId != null) {
+      DocumentSnapshot lokasiDoc = await FirebaseFirestore.instance
+          .collection('lokasi')
+          .doc(_selectedLokasiId)
+          .get();
+
+      if (lokasiDoc.exists) {
+        String tempat = lokasiDoc['tempat'];
+
+        await FirebaseFirestore.instance.collection('jadwal').add({
+          'semester': semesterController.text,
+          'kelas': kelasController.text,
+          'jam': jamController.text,
+          'tempat': tempat
+        });
+      }
+    }
+    Navigator.pop(context);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchLokasi();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,8 +101,9 @@ class Addscheduledialogue extends StatelessWidget {
                   borderRadius: BorderRadius.circular(5),
                   color: formColor,
                 ),
-                height: MediaQuery.sizeOf(context).height * 0.06,
+                height: MediaQuery.sizeOf(context).height * 0.05,
                 child: TextField(
+                  controller: semesterController,
                   textAlign: TextAlign.start,
                   style: GoogleFonts.roboto(
                       fontWeight: FontWeight.bold, fontSize: 20),
@@ -53,7 +112,6 @@ class Addscheduledialogue extends StatelessWidget {
                     hintText: 'Semester',
                     contentPadding: EdgeInsets.only(left: 10),
                   ),
-                  onChanged: (value) {},
                 ),
               ),
               SizedBox(
@@ -64,8 +122,9 @@ class Addscheduledialogue extends StatelessWidget {
                   borderRadius: BorderRadius.circular(5),
                   color: formColor,
                 ),
-                height: MediaQuery.sizeOf(context).height * 0.06,
+                height: MediaQuery.sizeOf(context).height * 0.05,
                 child: TextField(
+                  controller: kelasController,
                   textAlign: TextAlign.start,
                   style: GoogleFonts.roboto(
                       fontWeight: FontWeight.bold, fontSize: 20),
@@ -74,7 +133,6 @@ class Addscheduledialogue extends StatelessWidget {
                     hintText: 'Kelas',
                     contentPadding: EdgeInsets.only(left: 10),
                   ),
-                  onChanged: (value) {},
                 ),
               ),
               SizedBox(
@@ -85,8 +143,9 @@ class Addscheduledialogue extends StatelessWidget {
                   borderRadius: BorderRadius.circular(5),
                   color: formColor,
                 ),
-                height: MediaQuery.sizeOf(context).height * 0.06,
+                height: MediaQuery.sizeOf(context).height * 0.05,
                 child: TextField(
+                  controller: jamController,
                   textAlign: TextAlign.start,
                   style: GoogleFonts.roboto(
                       fontWeight: FontWeight.bold, fontSize: 20),
@@ -95,30 +154,46 @@ class Addscheduledialogue extends StatelessWidget {
                     hintText: 'Jam',
                     contentPadding: EdgeInsets.only(left: 10),
                   ),
-                  onChanged: (value) {},
                 ),
               ),
               SizedBox(
                 height: MediaQuery.sizeOf(context).height * 0.015,
               ),
               Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(5),
-                  color: formColor,
-                ),
-                height: MediaQuery.sizeOf(context).height * 0.06,
-                child: TextField(
-                  textAlign: TextAlign.start,
-                  style: GoogleFonts.roboto(
-                      fontWeight: FontWeight.bold, fontSize: 20),
-                  decoration: InputDecoration(
-                    border: InputBorder.none,
-                    hintText: 'Tempat',
-                    contentPadding: EdgeInsets.only(left: 10),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(5),
+                    color: formColor,
                   ),
-                  onChanged: (value) {},
-                ),
-              ),
+                  height: MediaQuery.sizeOf(context).height * 0.05,
+                  width: double.maxFinite,
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 10),
+                    child: DropdownButton(
+                      underline: SizedBox(),
+                      dropdownColor: secondaryColor,
+                      hint: Text(
+                        'Pilih Lokasi',
+                        style: GoogleFonts.roboto(
+                            fontWeight: FontWeight.bold, fontSize: 20),
+                      ),
+                      value: _selectedLokasiId,
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          _selectedLokasiId = newValue;
+                        });
+                      },
+                      items: _lokasis.map((lokasi) {
+                        return DropdownMenuItem<String>(
+                            value: lokasi['id'],
+                            child: Text(
+                              lokasi['tempat'],
+                              style: GoogleFonts.roboto(
+                                  fontWeight: FontWeight.bold, fontSize: 20),
+                            ));
+                      }).toList(),
+                    ),
+                  )
+                  ),
               SizedBox(
                 height: MediaQuery.sizeOf(context).height * 0.03,
               ),
@@ -150,7 +225,7 @@ class Addscheduledialogue extends StatelessWidget {
                   ),
                   GestureDetector(
                     onTap: () {
-                      Navigator.pop(context);
+                      addJadwal();
                     },
                     child: Container(
                       width: MediaQuery.sizeOf(context).width * 0.048,

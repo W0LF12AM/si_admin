@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:si_admin/const/default.dart';
 import 'package:si_admin/widget/card/cardInformationHeader.dart';
-import 'package:si_admin/widget/dialogue/addCoursesDialogue.dart';
+import 'package:si_admin/widget/dialogue/add/addCoursesDialogue.dart';
 import 'package:si_admin/widget/header/customHeader.dart';
 import 'package:si_admin/widget/card/coursesCard.dart';
 
@@ -22,6 +22,8 @@ class _CoursePageState extends State<CoursePage> {
         FirebaseFirestore.instance.collection('kelas').snapshots();
     final Stream<QuerySnapshot> lokasi =
         FirebaseFirestore.instance.collection('lokasi').snapshots();
+    final Stream<QuerySnapshot> jadwal =
+        FirebaseFirestore.instance.collection('jadwal').snapshots();
 
     return Scaffold(
       backgroundColor: bgColor,
@@ -87,11 +89,37 @@ class _CoursePageState extends State<CoursePage> {
                     SizedBox(
                       width: MediaQuery.sizeOf(context).height * 0.04,
                     ),
-                    Cardinformationheader(
-                      cardIcon: Icons.notifications,
-                      informasi: '10',
-                      judulCard: 'Schedules',
-                    ),
+                    StreamBuilder<QuerySnapshot>(
+                        stream: jadwal,
+                        builder: (context, snapshot) {
+                          print(
+                              'Connection State: ${snapshot.connectionState}');
+                          print('Has Error: ${snapshot.hasError}');
+                          print('Has Data: ${snapshot.hasData}');
+
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return Cardinformationheader(
+                              cardIcon: Icons.calendar_month,
+                              informasi: '0',
+                              judulCard: 'Locations',
+                            );
+                          }
+                          if (snapshot.hasError) {
+                            return Cardinformationheader(
+                              cardIcon: Icons.calendar_month,
+                              informasi: 'Error',
+                              judulCard: 'Locations',
+                            );
+                          }
+                          final jadwalCount = snapshot.data!.docs.length;
+
+                          return Cardinformationheader(
+                            cardIcon: Icons.calendar_month,
+                            informasi: jadwalCount.toString(),
+                            judulCard: 'Locations',
+                          );
+                        }),
                     SizedBox(
                       width: MediaQuery.sizeOf(context).height * 0.04,
                     ),

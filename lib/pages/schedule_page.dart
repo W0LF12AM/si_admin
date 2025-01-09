@@ -1,7 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:si_admin/const/default.dart';
 import 'package:si_admin/widget/card/scheduleCard.dart';
-import 'package:si_admin/widget/dialogue/addScheduleDialogue.dart';
+import 'package:si_admin/widget/dialogue/add/addScheduleDialogue.dart';
 
 import 'package:si_admin/widget/header/customHeaderWithoutSearch.dart';
 
@@ -62,16 +63,36 @@ class SchedulePage extends StatelessWidget {
                   child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    Schedulecard(
-                        semester: '6',
-                        kelas: 'Mobile Programming Gab C',
-                        jam: '14.30 - 16.00',
-                        pelakasaan: 'Lab SC'),
-                    Schedulecard(
-                        semester: '4',
-                        kelas: 'Statistika Dasar C',
-                        jam: '13.00 - 14.30',
-                        pelakasaan: 'Online'),
+                    StreamBuilder(
+                        stream: FirebaseFirestore.instance
+                            .collection('jadwal')
+                            .snapshots(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          }
+                          if (snapshot.hasError) {
+                            return Center(
+                              child: Text('Error bang : ${snapshot.error}'),
+                            );
+                          }
+
+                          final jadwals = snapshot.data!.docs;
+
+                          return Column(
+                            children: jadwals.map((jadwalDoc) {
+                              return Schedulecard(
+                                  semester: jadwalDoc['semester'],
+                                  kelas: jadwalDoc['kelas'],
+                                  jam: jadwalDoc['jam'],
+                                  pelakasaan: jadwalDoc['tempat'],
+                                  jadwalId: jadwalDoc.id);
+                            }).toList(),
+                          );
+                        })
                   ],
                 ),
               ))

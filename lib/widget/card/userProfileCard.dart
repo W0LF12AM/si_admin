@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:si_admin/const/default.dart';
-import 'package:si_admin/widget/dialogue/deleteConfirmationDialogue.dart';
-import 'package:si_admin/widget/dialogue/editScheduleDialogue.dart';
+import 'package:si_admin/widget/dialogue/delete/deleteConfirmationDialogue.dart';
 
 class Userprofilecard extends StatelessWidget {
   const Userprofilecard(
@@ -37,11 +36,11 @@ class Userprofilecard extends StatelessWidget {
               });
         },
         onTap: () {
-          showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return Editscheduledialogue();
-              });
+          // showDialog(
+          //     context: context,
+          //     builder: (BuildContext context) {
+              
+          //     });
         },
         child: Container(
           width: double.maxFinite,

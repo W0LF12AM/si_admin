@@ -2,9 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:si_admin/const/default.dart';
 import 'package:si_admin/widget/card/locationCard.dart';
-import 'package:si_admin/widget/card/scheduleCard.dart';
-import 'package:si_admin/widget/dialogue/addLocationDialogue.dart';
-import 'package:si_admin/widget/dialogue/addScheduleDialogue.dart';
+
+import 'package:si_admin/widget/dialogue/add/addLocationDialogue.dart';
+
 
 import 'package:si_admin/widget/header/customHeaderWithoutSearch.dart';
 
@@ -52,7 +52,7 @@ class LocationsettingPage extends StatelessWidget {
                       )),
                       Expanded(
                           child: Center(
-                        child: Text('Radius', style: coursesStyle),
+                        child: Text('Radius (m)', style: coursesStyle),
                       ))
                     ],
                   ),
@@ -86,6 +86,7 @@ class LocationsettingPage extends StatelessWidget {
                           return Column(
                               children: locations.map((locationDoc) {
                             return Locationcard(
+                                lokasiId: locationDoc.id,
                                 tempat: locationDoc['tempat'],
                                 longitude: locationDoc['longitude'].toString(),
                                 latitude: locationDoc['latitude'].toString(),

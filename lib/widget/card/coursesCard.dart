@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:si_admin/const/default.dart';
-import 'package:si_admin/widget/dialogue/deleteConfirmationDialogue.dart';
-import 'package:si_admin/widget/dialogue/downloadDataDialogue.dart';
+import 'package:si_admin/widget/dialogue/delete/deleteConfirmationDialogue.dart';
+import 'package:si_admin/widget/dialogue/download/downloadDataDialogue.dart';
 
 class Coursescard extends StatelessWidget {
   const Coursescard(

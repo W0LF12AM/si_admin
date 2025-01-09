@@ -4,33 +4,37 @@ import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:si_admin/const/default.dart';
 
-class Addcoursesdialogue extends StatefulWidget {
-  const Addcoursesdialogue({super.key});
+class Editscheduledialogue extends StatefulWidget {
+  const Editscheduledialogue({super.key, required this.documentId});
+
+  final String documentId;
 
   @override
-  State<Addcoursesdialogue> createState() => _AddcoursesdialogueState();
+  State<Editscheduledialogue> createState() => _EditscheduledialogueState();
 }
 
-class _AddcoursesdialogueState extends State<Addcoursesdialogue> {
-  final TextEditingController pertemuanController = TextEditingController();
+class _EditscheduledialogueState extends State<Editscheduledialogue> {
+  final TextEditingController semesterController = TextEditingController();
   final TextEditingController kelasController = TextEditingController();
   final TextEditingController jamController = TextEditingController();
   final TextEditingController tempatController = TextEditingController();
 
-  String? _selectedLocationId;
-  List<Map<String, dynamic>> _locations = [];
+  String? _selectedLokasiId;
+  List<Map<String, dynamic>> _lokasis = [];
 
   @override
   void initState() {
     super.initState();
-    _fetchLocations();
+    _loadJadwal();
+    _fetchLokasi();
   }
 
-  Future<void> _fetchLocations() async {
+  Future<void> _fetchLokasi() async {
     QuerySnapshot snapshot =
         await FirebaseFirestore.instance.collection('lokasi').get();
+
     setState(() {
-      _locations = snapshot.docs.map((doc) {
+      _lokasis = snapshot.docs.map((doc) {
         return {
           'id': doc.id,
           'tempat': doc['tempat'],
@@ -42,46 +46,43 @@ class _AddcoursesdialogueState extends State<Addcoursesdialogue> {
     });
   }
 
-  Future<void> _addClass() async {
-    String className = kelasController.text;
+  Future<void> _loadJadwal() async {
+    DocumentSnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore
+        .instance
+        .collection('jadwal')
+        .doc(widget.documentId)
+        .get();
+    if (snapshot.exists) {
+      Map<String, dynamic>? data = snapshot.data();
+      setState(() {
+        semesterController.text = data?['semester'] ?? '';
+        kelasController.text = data?['kelas'] ?? '';
+        jamController.text = data?['jam'] ?? '';
+        tempatController.text = data?['tempat'] ?? '';
+      });
+    }
+  }
 
-    if (_selectedLocationId != null) {
-      try {
-        DocumentSnapshot lokasiDoc = await FirebaseFirestore.instance
-            .collection('lokasi')
-            .doc(_selectedLocationId)
-            .get();
+  Future<void> _editJadwal() async {
+    if (_selectedLokasiId != null) {
+      DocumentSnapshot lokasiDoc = await FirebaseFirestore.instance
+          .collection('lokasi')
+          .doc(_selectedLokasiId)
+          .get();
 
-        if (lokasiDoc.exists) {
-          double longitude = lokasiDoc['longitude'];
-          double latitude = lokasiDoc['latitude'];
-          double radius = lokasiDoc['radius'];
-          String tempat = lokasiDoc['tempat'];
+      if (lokasiDoc.exists) {
+        String tempat = lokasiDoc['tempat'];
 
-          await FirebaseFirestore.instance.collection('kelas').add({
-            'pertemuan': pertemuanController.text,
-            'kelas': kelasController.text,
-            'jam': jamController.text,
-            'tempat': tempat,
-            'longitude': longitude,
-            'latitude': latitude,
-            'radius': radius,
-          });
-
-          print('Nama Tempat: $tempat');
-        } else {
-          print('Dokumen lokasi tidak ditemukan');
-        }
-      } catch (e) {
-        print('Error: $e');
+        await FirebaseFirestore.instance
+            .collection('jadwal')
+            .doc(widget.documentId)
+            .update({
+          'semester': semesterController.text,
+          'kelas': kelasController.text,
+          'jam': jamController.text,
+          'tempat': tempat
+        });
       }
-      pertemuanController.clear();
-      kelasController.clear();
-      jamController.clear();
-      _selectedLocationId = null;
-    } else {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Tolong pilih lokasi')));
     }
   }
 
@@ -100,7 +101,7 @@ class _AddcoursesdialogueState extends State<Addcoursesdialogue> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Add Course',
+                'Edit Schedule',
                 style: GoogleFonts.roboto(
                     color: mainColor,
                     fontSize: MediaQuery.sizeOf(context).width * 0.017,
@@ -122,18 +123,17 @@ class _AddcoursesdialogueState extends State<Addcoursesdialogue> {
                   borderRadius: BorderRadius.circular(5),
                   color: formColor,
                 ),
-                height: MediaQuery.sizeOf(context).height * 0.06,
+                height: MediaQuery.sizeOf(context).height * 0.05,
                 child: TextField(
-                  controller: pertemuanController,
+                  controller: semesterController,
                   textAlign: TextAlign.start,
                   style: GoogleFonts.roboto(
                       fontWeight: FontWeight.bold, fontSize: 20),
                   decoration: InputDecoration(
                     border: InputBorder.none,
-                    hintText: 'Pertemuan',
+                    hintText: 'Semester',
                     contentPadding: EdgeInsets.only(left: 10),
                   ),
-                  onChanged: (value) {},
                 ),
               ),
               SizedBox(
@@ -144,7 +144,7 @@ class _AddcoursesdialogueState extends State<Addcoursesdialogue> {
                   borderRadius: BorderRadius.circular(5),
                   color: formColor,
                 ),
-                height: MediaQuery.sizeOf(context).height * 0.06,
+                height: MediaQuery.sizeOf(context).height * 0.05,
                 child: TextField(
                   controller: kelasController,
                   textAlign: TextAlign.start,
@@ -155,7 +155,6 @@ class _AddcoursesdialogueState extends State<Addcoursesdialogue> {
                     hintText: 'Kelas',
                     contentPadding: EdgeInsets.only(left: 10),
                   ),
-                  onChanged: (value) {},
                 ),
               ),
               SizedBox(
@@ -166,7 +165,7 @@ class _AddcoursesdialogueState extends State<Addcoursesdialogue> {
                   borderRadius: BorderRadius.circular(5),
                   color: formColor,
                 ),
-                height: MediaQuery.sizeOf(context).height * 0.06,
+                height: MediaQuery.sizeOf(context).height * 0.05,
                 child: TextField(
                   controller: jamController,
                   textAlign: TextAlign.start,
@@ -177,49 +176,45 @@ class _AddcoursesdialogueState extends State<Addcoursesdialogue> {
                     hintText: 'Jam',
                     contentPadding: EdgeInsets.only(left: 10),
                   ),
-                  onChanged: (value) {},
                 ),
               ),
               SizedBox(
                 height: MediaQuery.sizeOf(context).height * 0.015,
               ),
               Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(5),
-                  color: formColor,
-                ),
-                height: MediaQuery.sizeOf(context).height * 0.06,
-                width: double.maxFinite,
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 10),
-                  child: DropdownButton<String>(
-                    underline: SizedBox(),
-                    dropdownColor: secondaryColor,
-                    hint: Text(
-                      'Pilih Lokasi',
-                      style: GoogleFonts.roboto(
-                          fontWeight: FontWeight.bold, fontSize: 20),
-                    ),
-                    value: _selectedLocationId,
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        _selectedLocationId =
-                            newValue; // Simpan ID lokasi yang dipilih
-                      });
-                    },
-                    items: _locations.map((location) {
-                      return DropdownMenuItem<String>(
-                        value: location['id'],
-                        child: Text(
-                          location['tempat'],
-                          style: GoogleFonts.roboto(
-                              fontWeight: FontWeight.bold, fontSize: 20),
-                        ),
-                      );
-                    }).toList(),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(5),
+                    color: formColor,
                   ),
-                ),
-              ),
+                  height: MediaQuery.sizeOf(context).height * 0.05,
+                  width: double.maxFinite,
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 10),
+                    child: DropdownButton(
+                      underline: SizedBox(),
+                      dropdownColor: secondaryColor,
+                      hint: Text(
+                        'Pilih Lokasi',
+                        style: GoogleFonts.roboto(
+                            fontWeight: FontWeight.bold, fontSize: 20),
+                      ),
+                      value: _selectedLokasiId,
+                      onChanged: (String? newVale) {
+                        setState(() {
+                          _selectedLokasiId = newVale;
+                        });
+                      },
+                      items: _lokasis.map((lokasi) {
+                        return DropdownMenuItem<String>(
+                            value: lokasi['id'],
+                            child: Text(
+                              lokasi['tempat'],
+                              style: GoogleFonts.roboto(
+                                  fontWeight: FontWeight.bold, fontSize: 20),
+                            ));
+                      }).toList(),
+                    ),
+                  )),
               SizedBox(
                 height: MediaQuery.sizeOf(context).height * 0.03,
               ),
@@ -250,8 +245,8 @@ class _AddcoursesdialogueState extends State<Addcoursesdialogue> {
                     width: MediaQuery.sizeOf(context).width * 0.005,
                   ),
                   GestureDetector(
-                    onTap: () async {
-                      _addClass();
+                    onTap: () {
+                      _editJadwal();
                       Navigator.pop(context);
                     },
                     child: Container(

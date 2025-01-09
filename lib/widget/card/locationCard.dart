@@ -1,7 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:si_admin/const/default.dart';
-import 'package:si_admin/widget/dialogue/deleteConfirmationDialogue.dart';
-import 'package:si_admin/widget/dialogue/editScheduleDialogue.dart';
+import 'package:si_admin/widget/dialogue/delete/deleteConfirmationDialogue.dart';
+import 'package:si_admin/widget/dialogue/edit/editLokasiDialogue.dart';
+
 
 class Locationcard extends StatelessWidget {
   const Locationcard(
@@ -9,15 +11,32 @@ class Locationcard extends StatelessWidget {
       required this.tempat,
       required this.longitude,
       required this.latitude,
-      required this.radius});
+      required this.radius,
+      required this.lokasiId});
 
   final String tempat;
   final String longitude;
   final String latitude;
   final String radius;
+  final String lokasiId;
 
   @override
   Widget build(BuildContext context) {
+    void deleteLokasi(String lokasiId) {
+      print('berhasil menghapus lokasi : $lokasiId');
+      FirebaseFirestore.instance
+          .collection('lokasi')
+          .doc(lokasiId)
+          .delete()
+          .then((_) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Lokasi berhasil dihapus')));
+      }).catchError((e) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text("Error bang : $e")));
+      });
+    }
+
     return Padding(
       padding: EdgeInsets.only(
           left: MediaQuery.sizeOf(context).width * 0.04,
@@ -30,7 +49,9 @@ class Locationcard extends StatelessWidget {
               builder: (BuildContext context) {
                 //delete confirmation
                 return DeleteConfirmationDialogue(
-                  delete: () {},
+                  delete: () {
+                    deleteLokasi(lokasiId);
+                  },
                 );
               });
         },
@@ -38,7 +59,9 @@ class Locationcard extends StatelessWidget {
           showDialog(
               context: context,
               builder: (BuildContext context) {
-                return Editscheduledialogue();
+                return Editlokasidialogue(
+                  documentId: lokasiId,
+                );
               });
         },
         child: Container(
@@ -87,3 +110,18 @@ class Locationcard extends StatelessWidget {
     );
   }
 }
+
+    // void deleteJadwal(String jadwalId) {
+    //   print('Menghapus jadwal dengan ID: $jadwalId');
+    //   FirebaseFirestore.instance
+    //       .collection('jadwal')
+    //       .doc(jadwalId)
+    //       .delete()
+    //       .then((_) {
+    //     ScaffoldMessenger.of(context)
+    //         .showSnackBar(SnackBar(content: Text('Jadwal berhasil dihapus')));
+    //   }).catchError((e) {
+    //     ScaffoldMessenger.of(context)
+    //         .showSnackBar(SnackBar(content: Text("Error bang : $e")));
+    //   });
+    // }
