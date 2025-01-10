@@ -5,12 +5,16 @@ import 'package:si_admin/widget/card/locationCard.dart';
 
 import 'package:si_admin/widget/dialogue/add/addLocationDialogue.dart';
 
-
 import 'package:si_admin/widget/header/customHeaderWithoutSearch.dart';
 
-class LocationsettingPage extends StatelessWidget {
+class LocationsettingPage extends StatefulWidget {
   const LocationsettingPage({super.key});
 
+  @override
+  State<LocationsettingPage> createState() => _LocationsettingPageState();
+}
+
+class _LocationsettingPageState extends State<LocationsettingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -62,40 +66,43 @@ class LocationsettingPage extends StatelessWidget {
                 height: MediaQuery.sizeOf(context).height * 0.02,
               ),
               Expanded(
-                  child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    StreamBuilder(
-                        stream: FirebaseFirestore.instance
-                            .collection('lokasi')
-                            .snapshots(),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return Center(
-                              child: CircularProgressIndicator(),
-                            );
-                          }
-                          if (snapshot.hasError) {
-                            return Center(
-                              child: Text('Error : ${snapshot.error}'),
-                            );
-                          }
-                          final locations = snapshot.data!.docs;
+                  child: StreamBuilder<QuerySnapshot>(
+                      stream: FirebaseFirestore.instance
+                          .collection('lokasi')
+                          .snapshots(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
+                        if (snapshot.hasError) {
+                          return Center(
+                            child: Text('Error : ${snapshot.error}'),
+                          );
+                        }
+                        final locations = snapshot.data!.docs;
 
-                          return Column(
-                              children: locations.map((locationDoc) {
-                            return Locationcard(
-                                lokasiId: locationDoc.id,
-                                tempat: locationDoc['tempat'],
-                                longitude: locationDoc['longitude'].toString(),
-                                latitude: locationDoc['latitude'].toString(),
-                                radius: locationDoc['radius'].toString());
-                          }).toList());
-                        })
-                  ],
-                ),
-              ))
+                        if (locations.isEmpty) {
+                          return Center(
+                            child: Text(
+                              'Tidak ada lokasi terdaftar',
+                              style: coursesStyle,
+                            ),
+                          );
+                        }
+
+                        return ListView(
+                            children: locations.map((locationDoc) {
+                          return Locationcard(
+                              lokasiId: locationDoc.id,
+                              tempat: locationDoc['tempat'],
+                              longitude: locationDoc['longitude'].toString(),
+                              latitude: locationDoc['latitude'].toString(),
+                              radius: locationDoc['radius'].toString());
+                        }).toList());
+                      }))
             ],
           ))
         ],

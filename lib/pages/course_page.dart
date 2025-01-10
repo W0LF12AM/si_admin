@@ -24,6 +24,8 @@ class _CoursePageState extends State<CoursePage> {
         FirebaseFirestore.instance.collection('lokasi').snapshots();
     final Stream<QuerySnapshot> jadwal =
         FirebaseFirestore.instance.collection('jadwal').snapshots();
+    final Stream<QuerySnapshot> users =
+        FirebaseFirestore.instance.collection('users').snapshots();
 
     return Scaffold(
       backgroundColor: bgColor,
@@ -48,11 +50,36 @@ class _CoursePageState extends State<CoursePage> {
                     horizontal: MediaQuery.sizeOf(context).width * 0.04),
                 child: Row(
                   children: [
-                    Cardinformationheader(
-                      cardIcon: Icons.person,
-                      informasi: '20',
-                      judulCard: 'Users',
-                    ),
+                    StreamBuilder<QuerySnapshot>(
+                        stream: users,
+                        builder: (context, snapshot) {
+                          print(
+                              'Connection State: ${snapshot.connectionState}');
+                          print('Has Error: ${snapshot.hasError}');
+                          print('Has Data: ${snapshot.hasData}');
+
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return Cardinformationheader(
+                              cardIcon: Icons.person,
+                              informasi: '0',
+                              judulCard: 'users',
+                            );
+                          }
+                          if (snapshot.hasError) {
+                            return Cardinformationheader(
+                              cardIcon: Icons.person,
+                              informasi: 'Error',
+                              judulCard: 'Users',
+                            );
+                          }
+                          final userCount = snapshot.data!.docs.length;
+                          return Cardinformationheader(
+                            cardIcon: Icons.person,
+                            informasi: userCount.toString(),
+                            judulCard: 'Users',
+                          );
+                        }),
                     SizedBox(
                       width: MediaQuery.sizeOf(context).height * 0.04,
                     ),

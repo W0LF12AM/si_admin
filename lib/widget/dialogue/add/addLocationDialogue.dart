@@ -4,14 +4,9 @@ import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:si_admin/const/default.dart';
 
-class Addlocationdialogue extends StatefulWidget {
+class Addlocationdialogue extends StatelessWidget {
   const Addlocationdialogue({super.key});
 
-  @override
-  State<Addlocationdialogue> createState() => _AddlocationdialogueState();
-}
-
-class _AddlocationdialogueState extends State<Addlocationdialogue> {
   @override
   Widget build(BuildContext context) {
     final TextEditingController tempatController = TextEditingController();

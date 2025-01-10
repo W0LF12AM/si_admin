@@ -4,7 +4,7 @@ import 'package:si_admin/const/default.dart';
 import 'package:si_admin/widget/dialogue/delete/deleteConfirmationDialogue.dart';
 import 'package:si_admin/widget/dialogue/edit/editScheduleDialogue.dart';
 
-class Schedulecard extends StatelessWidget {
+class Schedulecard extends StatefulWidget {
   const Schedulecard(
       {super.key,
       required this.semester,
@@ -20,22 +20,32 @@ class Schedulecard extends StatelessWidget {
   final String jadwalId;
 
   @override
-  Widget build(BuildContext context) {
-    void deleteJadwal(String jadwalId) {
-      print('Menghapus jadwal dengan ID: $jadwalId');
-      FirebaseFirestore.instance
-          .collection('jadwal')
-          .doc(jadwalId)
-          .delete()
-          .then((_) {
+  State<Schedulecard> createState() => _SchedulecardState();
+}
+
+class _SchedulecardState extends State<Schedulecard> {
+  void deleteJadwal(String jadwalId) {
+    Navigator.pop(context);
+    print('Menghapus jadwal dengan ID: $jadwalId');
+    FirebaseFirestore.instance
+        .collection('jadwal')
+        .doc(jadwalId)
+        .delete()
+        .then((_) {
+      if (mounted) {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text('Jadwal berhasil dihapus')));
-      }).catchError((e) {
+      }
+    }).catchError((e) {
+      if (mounted) {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text("Error bang : $e")));
-      });
-    }
+      }
+    });
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(
           left: MediaQuery.sizeOf(context).width * 0.04,
@@ -49,7 +59,7 @@ class Schedulecard extends StatelessWidget {
                 //delete confirmation
                 return DeleteConfirmationDialogue(
                   delete: () {
-                    deleteJadwal(jadwalId);
+                    deleteJadwal(widget.jadwalId);
                   },
                 );
               });
@@ -59,7 +69,7 @@ class Schedulecard extends StatelessWidget {
               context: context,
               builder: (BuildContext context) {
                 return Editscheduledialogue(
-                  documentId: jadwalId,
+                  documentId: widget.jadwalId,
                 );
               });
         },
@@ -73,14 +83,14 @@ class Schedulecard extends StatelessWidget {
             children: [
               //smester
               Expanded(
-                  child:
-                      Center(child: Text(semester, style: coursesDescStyle))),
+                  child: Center(
+                      child: Text(widget.semester, style: coursesDescStyle))),
               //matprak
               Expanded(
                 child: Center(
                   child: Text(
                     textAlign: TextAlign.center,
-                    kelas,
+                    widget.kelas,
                     style: coursesDescStyle,
                   ),
                 ),
@@ -89,7 +99,7 @@ class Schedulecard extends StatelessWidget {
               Expanded(
                 child: Center(
                   child: Text(
-                    jam,
+                    widget.jam,
                     style: coursesDescStyle,
                   ),
                 ),
@@ -98,7 +108,7 @@ class Schedulecard extends StatelessWidget {
               Expanded(
                 child: Center(
                   child: Text(
-                    pelakasaan,
+                    widget.pelakasaan,
                     style: coursesDescStyle,
                   ),
                 ),

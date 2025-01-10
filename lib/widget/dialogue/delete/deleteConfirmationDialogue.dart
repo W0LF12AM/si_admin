@@ -65,7 +65,6 @@ class DeleteConfirmationDialogue extends StatelessWidget {
                           GestureDetector(
                             onTap: () async {
                               delete();
-                              Navigator.pop(context);
                             },
                             child: Container(
                               width: 120,

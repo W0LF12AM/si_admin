@@ -1,10 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:si_admin/const/default.dart';
 import 'package:si_admin/widget/card/userProfileCard.dart';
 import 'package:si_admin/widget/header/customHeader.dart';
-import 'package:si_admin/widget/header/customHeaderWithoutSearch.dart';
 
 class UserprofilePage extends StatefulWidget {
   const UserprofilePage({super.key});

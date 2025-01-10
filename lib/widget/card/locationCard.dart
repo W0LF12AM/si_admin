@@ -4,8 +4,7 @@ import 'package:si_admin/const/default.dart';
 import 'package:si_admin/widget/dialogue/delete/deleteConfirmationDialogue.dart';
 import 'package:si_admin/widget/dialogue/edit/editLokasiDialogue.dart';
 
-
-class Locationcard extends StatelessWidget {
+class Locationcard extends StatefulWidget {
   const Locationcard(
       {super.key,
       required this.tempat,
@@ -21,22 +20,32 @@ class Locationcard extends StatelessWidget {
   final String lokasiId;
 
   @override
-  Widget build(BuildContext context) {
-    void deleteLokasi(String lokasiId) {
-      print('berhasil menghapus lokasi : $lokasiId');
-      FirebaseFirestore.instance
-          .collection('lokasi')
-          .doc(lokasiId)
-          .delete()
-          .then((_) {
+  State<Locationcard> createState() => _LocationcardState();
+}
+
+class _LocationcardState extends State<Locationcard> {
+  void deleteLokasi(BuildContext context, String lokasiId) {
+    Navigator.pop(context);
+    print('berhasil menghapus lokasi : $lokasiId');
+    FirebaseFirestore.instance
+        .collection('lokasi')
+        .doc(lokasiId)
+        .delete()
+        .then((_) {
+      if (mounted) {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text('Lokasi berhasil dihapus')));
-      }).catchError((e) {
+      }
+    }).catchError((e) {
+      if (mounted) {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text("Error bang : $e")));
-      });
-    }
+      }
+    });
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(
           left: MediaQuery.sizeOf(context).width * 0.04,
@@ -50,7 +59,7 @@ class Locationcard extends StatelessWidget {
                 //delete confirmation
                 return DeleteConfirmationDialogue(
                   delete: () {
-                    deleteLokasi(lokasiId);
+                    deleteLokasi(context, widget.lokasiId);
                   },
                 );
               });
@@ -60,7 +69,7 @@ class Locationcard extends StatelessWidget {
               context: context,
               builder: (BuildContext context) {
                 return Editlokasidialogue(
-                  documentId: lokasiId,
+                  documentId: widget.lokasiId,
                 );
               });
         },
@@ -74,13 +83,14 @@ class Locationcard extends StatelessWidget {
             children: [
               //smester
               Expanded(
-                  child: Center(child: Text(tempat, style: coursesDescStyle))),
+                  child: Center(
+                      child: Text(widget.tempat, style: coursesDescStyle))),
               //matprak
               Expanded(
                 child: Center(
                   child: Text(
                     textAlign: TextAlign.center,
-                    longitude,
+                    widget.longitude,
                     style: coursesDescStyle,
                   ),
                 ),
@@ -89,7 +99,7 @@ class Locationcard extends StatelessWidget {
               Expanded(
                 child: Center(
                   child: Text(
-                    latitude,
+                    widget.latitude,
                     style: coursesDescStyle,
                   ),
                 ),
@@ -98,7 +108,7 @@ class Locationcard extends StatelessWidget {
               Expanded(
                 child: Center(
                   child: Text(
-                    radius,
+                    widget.radius,
                     style: coursesDescStyle,
                   ),
                 ),
@@ -110,18 +120,3 @@ class Locationcard extends StatelessWidget {
     );
   }
 }
-
-    // void deleteJadwal(String jadwalId) {
-    //   print('Menghapus jadwal dengan ID: $jadwalId');
-    //   FirebaseFirestore.instance
-    //       .collection('jadwal')
-    //       .doc(jadwalId)
-    //       .delete()
-    //       .then((_) {
-    //     ScaffoldMessenger.of(context)
-    //         .showSnackBar(SnackBar(content: Text('Jadwal berhasil dihapus')));
-    //   }).catchError((e) {
-    //     ScaffoldMessenger.of(context)
-    //         .showSnackBar(SnackBar(content: Text("Error bang : $e")));
-    //   });
-    // }
