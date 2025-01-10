@@ -17,3 +17,6 @@ var confrirmDeletDialogeStyle = GoogleFonts.roboto(
 
 var cancelDeleteDialogueStyle = GoogleFonts.roboto(
     fontSize: 20, fontWeight: FontWeight.w500, color: secondaryColor);
+
+var coursesDownloadInfoStyle =
+    GoogleFonts.roboto(fontSize: 15, fontWeight: FontWeight.w500);
