@@ -12,6 +12,7 @@ Aplikasi ini dibuat untuk memudahkan pihak admin dalam:
 ## 🧩 Fitur Utama
 
 - 👥 **Monitoring Kehadiran**
+  - Menambahkan kelas yang bisa dihadiri pada hari tersebut.
   - Melihat daftar kehadiran lengkap dengan nama dan waktu per mata praktikum ang dihadiri user.
 
 - 📍 **Verifikasi Lokasi**
@@ -22,6 +23,8 @@ Aplikasi ini dibuat untuk memudahkan pihak admin dalam:
 
 - 🗂️ **Manajemen Data**
   - Menampilkan daftar pengguna yang terdaftar.
+  - Menambahkan jadwal praktikum.
+  - Menambahkan koordinasi lokasi presensi.
 
 ## ⚙️ Teknologi yang Digunakan
 
